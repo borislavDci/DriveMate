@@ -4,7 +4,15 @@ import StatusCodes from "http-status-codes";
 
 const { SALT } = process.env;
 
-const getUser = (req, res) => {};
+const getUser = async (req, res) => {
+  const user = await User.findById(req.tokenId).select("-password").exec();
+  if (!user)
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .send({ status: "error", message: "User not found" });
+  console.log(user);
+  res.status(StatusCodes.OK).send({ status: "success", data: user });
+};
 
 const createUser = async (req, res) => {
   const { username, password, firstName, lastName, email } = req.body;
