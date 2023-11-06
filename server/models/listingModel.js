@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const listingSchema = new mongoose.Schema({
-  ownerId: { type: ObjectId, ref: "users" },
+  ownerId: { type: ObjectId, ref: "user" },
   make: String,
   model: String,
   year: Number,

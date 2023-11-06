@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import userRoute from "./routes/userRoute.js";
 import authRoute from "./routes/authRoute.js";
 import cookieParser from "cookie-parser";
+import listingRoute from "./routes/listingRoute.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 app.use("/user", userRoute);
 app.use("/auth", authRoute);
+app.use("/listing", listingRoute);
 
 mongoose
   .connect(DB_STRING)
