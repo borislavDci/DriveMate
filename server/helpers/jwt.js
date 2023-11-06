@@ -5,8 +5,6 @@ dotenv.config();
 const { JWT_SECRET } = process.env;
 
 function jwtSignIn(user) {
-  console.log(JWT_SECRET);
-
   if (!user) return;
   const token = jwt.sign({ id: user._id }, JWT_SECRET, {
     expiresIn: 86400, // Token expires in 24 hours (in seconds)

@@ -15,7 +15,9 @@ authRoute.post("/login", async (req, res) => {
     user.password.toString()
   );
   if (!user || !isPasswordMatch) {
-    return res.status(401).json({ error: `Invalid Credentials.` });
+    return res
+      .status(401)
+      .json({ status: "success", error: `Invalid Credentials.` });
   }
 
   const token = jwtSignIn(user);
@@ -26,7 +28,7 @@ authRoute.post("/login", async (req, res) => {
 });
 
 authRoute.post("/logout", (req, res) => {
-  res.clearCookie("jwt").json({ message: `success` });
+  res.clearCookie("jwt").json({ status: `success` });
 });
 
 export default authRoute;

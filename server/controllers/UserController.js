@@ -10,7 +10,6 @@ const getUser = async (req, res) => {
     return res
       .status(StatusCodes.NOT_FOUND)
       .send({ status: "error", message: "User not found" });
-  console.log(user);
   res.status(StatusCodes.OK).send({ status: "success", data: user });
 };
 
