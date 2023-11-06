@@ -11,9 +11,25 @@ const getAllListings = async (req, res) => {
       .send({ status: "error", message: "Not found" });
   }
 
-  return res.status(StatusCodes.OK).send({ allListings });
+  return res.status(StatusCodes.OK).send(allListings);
 };
 
+const getListing = async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.query.listingId);
+    if (!listing) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ status: "error", message: "Not Found" });
+    }
+    return res.status(StatusCodes.OK).send(listing);
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ status: "error", message: `${error}` });
+  }
+};
 const createListing = async (req, res) => {
   try {
     const user = await User.findById(req.tokenId);
@@ -33,6 +49,34 @@ const createListing = async (req, res) => {
       .status(StatusCodes.FORBIDDEN)
       .send({ status: "error", message: "FORBIDDEN" });
   }
+};
+
+const updateListing = async (req, res) => {
+  const { make, model, year, description, pricePerDay, location, listingId } =
+    req.body;
+
+  try {
+    const listingToUpdate = await Listing.findById(listingId);
+
+    if (!listingToUpdate) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ status: "error", message: "Not found" });
+    }
+    listingToUpdate.set({
+      make,
+      model,
+      year,
+      description,
+      pricePerDay,
+      location,
+    });
+    const updatedListing = await listingToUpdate.save();
+
+    console.log(updatedListing);
+
+    return res.status(StatusCodes.OK).send(updatedListing);
+  } catch (error) {}
 };
 
 const deleteListing = async (req, res) => {
@@ -72,4 +116,10 @@ const deleteListing = async (req, res) => {
   res.status(StatusCodes.OK).send({ status: "success" });
 };
 
-export { getAllListings, createListing, deleteListing };
+export {
+  getAllListings,
+  createListing,
+  deleteListing,
+  updateListing,
+  getListing,
+};

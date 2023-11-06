@@ -4,6 +4,8 @@ import {
   createListing,
   getAllListings,
   deleteListing,
+  updateListing,
+  getListing,
 } from "../controllers/ListingController.js";
 
 const listingRoute = express.Router();
@@ -12,9 +14,9 @@ listingRoute.get("/all", getAllListings);
 
 listingRoute
   .route("/")
-  .get()
+  .get(getListing)
   .post(verifyToken, createListing)
-  .put()
+  .patch(verifyToken, updateListing)
   .delete(verifyToken, deleteListing);
 
 export default listingRoute;
