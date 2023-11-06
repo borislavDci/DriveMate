@@ -1,6 +1,7 @@
 import StatusCodes from "http-status-codes";
 import User from "../models/userModel.js";
 import Listing from "../models/listingModel.js";
+import mongooseErrorFormater from "../helpers/mongooseErrorFormater.js";
 
 const getAllListings = async (req, res) => {
   const allListings = await Listing.find({});
@@ -30,7 +31,7 @@ const getListing = async (req, res) => {
       .send({ status: "error", message: `${error}` });
   }
 };
-const createListing = async (req, res) => {
+const createListing = async (req, res, next) => {
   try {
     const user = await User.findById(req.tokenId);
     const { make, model, year, description, pricePerDay, location } = req.body;
@@ -45,25 +46,29 @@ const createListing = async (req, res) => {
     });
     res.status(StatusCodes.CREATED).send(newListing);
   } catch (error) {
-    res
-      .status(StatusCodes.FORBIDDEN)
-      .send({ status: "error", message: "FORBIDDEN" });
+    if (error.name !== "ValidationError") {
+      return res
+        .status(StatusCodes.FORBIDDEN)
+        .send({ status: "error", error: error });
+    }
+    req.clientErrors = error;
+    next();
   }
 };
 
-const updateListing = async (req, res) => {
+const updateListing = async (req, res, next) => {
   const { make, model, year, description, pricePerDay, location, listingId } =
     req.body;
 
   try {
-    const listingToUpdate = await Listing.findById(listingId);
+    const existingListing = await Listing.findById(listingId);
 
-    if (!listingToUpdate) {
+    if (!existingListing) {
       return res
         .status(StatusCodes.NOT_FOUND)
         .send({ status: "error", message: "Not found" });
     }
-    listingToUpdate.set({
+    existingListing.set({
       make,
       model,
       year,
@@ -71,12 +76,20 @@ const updateListing = async (req, res) => {
       pricePerDay,
       location,
     });
-    const updatedListing = await listingToUpdate.save();
+    const updatedListing = await existingListing.save();
 
     console.log(updatedListing);
 
     return res.status(StatusCodes.OK).send(updatedListing);
-  } catch (error) {}
+  } catch (error) {
+    if (error.name !== "ValidationError") {
+      return res
+        .status(StatusCodes.FORBIDDEN)
+        .send({ status: "error", error: error });
+    }
+    req.clientErrors = error;
+    next();
+  }
 };
 
 const deleteListing = async (req, res) => {

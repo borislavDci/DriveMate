@@ -7,6 +7,7 @@ import {
   updateListing,
   getListing,
 } from "../controllers/ListingController.js";
+import mongooseValidator from "../middleware/mongooseValidator.js";
 
 const listingRoute = express.Router();
 
@@ -15,8 +16,8 @@ listingRoute.get("/all", getAllListings);
 listingRoute
   .route("/")
   .get(getListing)
-  .post(verifyToken, createListing)
-  .patch(verifyToken, updateListing)
+  .post(verifyToken, createListing, mongooseValidator)
+  .patch(verifyToken, updateListing, mongooseValidator)
   .delete(verifyToken, deleteListing);
 
 export default listingRoute;
