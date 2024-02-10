@@ -9,17 +9,18 @@ const { isProduction } = process.env;
 authRoute.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username });
-
-  const isPasswordMatch = await bcrypt.compare(
-    password.toString(),
-    user.password.toString()
-  );
-  if (!user || !isPasswordMatch) {
+  console.log(username, password)
+  if (!user) {
     return res
       .status(401)
-      .json({ status: "success", error: `Invalid Credentials.` });
+      .json({ status: "error", message: `Invalid Credentials.` });
   }
-
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+  if (!isPasswordMatch) {
+    return res
+      .status(401)
+      .json({ status: "error", message: `Invalid Credentials.` });
+  }
   const token = jwtSignIn(user);
   res
     .cookie("jwt", token, { httpOnly: true, secure: isProduction })

@@ -95,17 +95,17 @@ const Navbar = ({ user }) => {
             })}
             <li>
               {/* Logout button for hambuger menu */}
-              <LogoutButton className="block md:hidden" />
+              {user && <LogoutButton className="block md:hidden" />}
             </li>
           </ul>
         </div>
       </nav>
       {/* User profile and logout button */}
       <div className="flex gap-5 items-center flex-row-reverse md:flex-row">
+        {/* Hamburger menu button */}
+        <HamburgerMenu isOpen={isOpen} toggleMenu={toggleMenu} />
         {user && (
           <>
-            {/* Hamburger menu button */}
-            <HamburgerMenu isOpen={isOpen} toggleMenu={toggleMenu} />
             {/* User profile link */}
             <Link to="dashboard/profile">
               <FontAwesomeIcon

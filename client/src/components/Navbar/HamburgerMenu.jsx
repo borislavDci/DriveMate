@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-function HamburgerMenu({ isOpen, toggleMenu }) {
+const HamburgerMenu = ({ isOpen, toggleMenu }) => {
   return (
     <div className="md:hidden">
       <button
@@ -27,7 +27,7 @@ function HamburgerMenu({ isOpen, toggleMenu }) {
       </button>
     </div>
   );
-}
+};
 
 HamburgerMenu.propTypes = {
   isOpen: PropTypes.bool.isRequired,

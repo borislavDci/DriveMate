@@ -1,4 +1,5 @@
 import { validationResult } from "express-validator";
+import { StatusCodes } from "http-status-codes";
 
 const expressValidator = (req, res, next) => {
   const result = validationResult(req);

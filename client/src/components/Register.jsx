@@ -1,24 +1,54 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
+import api from "../utils/api";
+
+const defaultInputData = {
+  name: "",
+  username: "",
+  email: "",
+  password: "",
+};
 
 export default function Register() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [message, setMessage] = useState("");
+  const [inputData, setInputData] = useState(defaultInputData);
+  const { login } = useContext(AuthContext);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setInputData({
+      ...inputData,
       [name]: value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here (e.g., send data to server, create a new user, etc.)
-    console.log("Registration form submitted with data:", formData);
+    setMessage("");
+    const formData = new FormData();
+    Object.keys(inputData).forEach((key) => {
+      if (key === "name") {
+        const names = inputData[key].split(" ");
+        formData.append("firstName", names[0]);
+        formData.append("lastName", names[1]);
+      }
+      formData.append(key, inputData[key]);
+    });
+    const formDataObject = Object.fromEntries(formData);
+    try {
+      const res = await api.post("/user", formDataObject);
+      if (res.status === 201) {
+        setMessage(
+          "Your account has been created successfully. Please wait to log in."
+        );
+        setInputData(defaultInputData);
+        setTimeout(() => {
+          login(formDataObject);
+        }, 1000);
+      }
+    } catch (error) {
+      setMessage(error.data.message);
+    }
   };
 
   return (
@@ -37,7 +67,24 @@ export default function Register() {
               type="text"
               id="name"
               name="name"
-              value={formData.name}
+              value={inputData.name}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="username"
+              className="block text-gray-600 text-sm font-medium mb-2"
+            >
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={inputData.username}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
               required
@@ -54,7 +101,7 @@ export default function Register() {
               type="email"
               id="email"
               name="email"
-              value={formData.email}
+              value={inputData.email}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
               required
@@ -71,7 +118,7 @@ export default function Register() {
               type="password"
               id="password"
               name="password"
-              value={formData.password}
+              value={inputData.password}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
               required
@@ -84,6 +131,7 @@ export default function Register() {
             Register
           </button>
         </form>
+        {message && <p>{message}</p>}
       </div>
     </div>
   );

@@ -6,13 +6,38 @@ const userSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   email: String,
   password: String,
-  firstName: { type: String },
-  lastName: String,
+  profile: {
+    firstName: { type: String },
+    lastName: String,
+    drivingLicense: String,
+    address: {
+      street: {
+        type: String,
+      },
+      city: {
+        type: String,
+      },
+      postalCode: {
+        type: String,
+      },
+      country: {
+        type: String,
+      },
+    },
+  },
   avatarURL: String,
-  isVerfied: String,
-  listings: { type: ObjectId, ref: "listings" },
-  bookings: { type: ObjectId, ref: "bookings" },
-  favoriteListings: { type: ObjectId, ref: "listings" },
+  role: {
+    type: String,
+    enum: ["customer", "carOwner", "admin"],
+    default: "customer",
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  listings: [{ type: ObjectId, ref: "listing" }],
+  bookings: [{ type: ObjectId, ref: "booking" }],
+  favoriteListings: [{ type: ObjectId, ref: "listing" }],
 });
 
 const User = mongoose.model("user", userSchema, "users");

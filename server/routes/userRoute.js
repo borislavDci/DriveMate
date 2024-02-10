@@ -1,5 +1,9 @@
 import express from "express";
-import { createUser, getUser } from "../controllers/userController.js";
+import {
+  createUser,
+  getUser,
+  updateUser,
+} from "../controllers/UserController.js";
 import { body } from "express-validator";
 import expressValidator from "../middleware/expressValidator.js";
 import verifyToken from "../middleware/auth.js";
@@ -15,7 +19,7 @@ userRoute
   .route("/")
   .get(verifyToken, getUser)
   .post(createUserValidator, createUser)
-  .put()
+  .patch(verifyToken, updateUser)
   .delete();
 
 export default userRoute;

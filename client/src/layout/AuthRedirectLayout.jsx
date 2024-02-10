@@ -3,7 +3,6 @@ import { Navigate, Outlet } from "react-router-dom";
 
 const AuthRedirectLayout = () => {
   const { user } = useAuth();
-
   if (user) {
     return <Navigate to={"/"} />;
   }

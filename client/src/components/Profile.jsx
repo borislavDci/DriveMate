@@ -1,15 +1,24 @@
-import { Form, useLoaderData, useRevalidator } from "react-router-dom";
+import { Form, useOutletContext } from "react-router-dom";
 import { useState } from "react";
 import api from "../utils/api";
+import capitalizeFirstLetter from "../helpers/capitalizeFirstLetter";
+
+const excludedKeys = [
+  "avatarURL",
+  "listings",
+  "bookings",
+  "__v",
+  "_id",
+  "favoriteListings",
+  "isVerified",
+  "role",
+];
 
 const Profile = () => {
-  const user = useLoaderData();
+  const { user, revalidate } = useOutletContext();
   const userDataArray = Object.keys(user);
-  console.log(user);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({});
-
-  const revalidate = useRevalidator();
 
   const handleChange = (e, field) => {
     setUpdatedUser((prevState) => {
@@ -48,82 +57,37 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <div>
-        {isEditing ? (
-          <label htmlFor="image">
-            <img
-              src={`${api.defaults.baseURL}/avatars/${user.avatarURL}`}
-              alt="NoImage"
-            />
-          </label>
-        ) : (
-          <img
-            src={`${api.defaults.baseURL}/avatars/${user.avatarURL}`}
-            alt="NoImage"
-          />
-        )}
-
-        <Form encType="multipart/form-data" onSubmit={onSubmitForm}>
-          <input
-            className="hidden"
-            type="file"
-            name="image"
-            id="image"
-            accept="image/*"
-            multiple={false}
-          />
-          {isEditing ? (
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
-              Save Avatar
-            </button>
-          ) : null}
-        </Form>
-      </div>
-      <ul className="w-64 list-none p-4 text-gray-700">
-        <li></li>
-        {userDataArray.map((field) => (
-          <li key={field} className="mb-2">
-            {isEditing ? (
-              <>
-                <label htmlFor={field}>{field}</label>
+    <>
+      <div className="flex gap-5">
+        <div className="flex gap-5 my-5 flex-col xl:flex-row bg-blue-300 p-5 rounded-lg">
+          {userDataArray.map((key) => {
+            if (excludedKeys.includes(key)) return null;
+            return (
+              <div key={key} className="flex flex-col gap-1 mb-2">
+                <p className="font-bold">{capitalizeFirstLetter(key)}</p>
                 <input
-                  onChange={(e) => handleChange(e, field)}
+                  disabled={!isEditing}
+                  className="border border-blue-500 rounded-sm pl-5 py-2"
                   type="text"
-                  name={field}
-                  defaultValue={user[field]}
-                  className="w-full border border-gray-300 rounded-md p-2"
+                  name={key}
+                  id={key}
+                  defaultValue={user[key]}
+                  onChange={(e) => handleChange(e, key)}
                 />
-              </>
-            ) : (
-              <>
-                <span className="text-gray-500">{field.toUpperCase()}:</span>
-                <span>
-                  {user.isVerified}
-                  {typeof user[field] === "object" ? "" : user[field]}
-                </span>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-
-      {isEditing ? (
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          onClick={handleSaveProfile}
-        >
-          Save profile
-        </button>
-      ) : (
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          onClick={handleEditProfile}
-        >
-          Edit profile
-        </button>
-      )}
-    </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <button
+        onClick={() => {
+          if (isEditing) handleSaveProfile();
+          handleEditProfile();
+        }}
+      >
+        {isEditing ? "Save Changes" : "Edit Profile"}
+      </button>
+    </>
   );
 };
 

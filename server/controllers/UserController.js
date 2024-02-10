@@ -41,7 +41,22 @@ const createUser = async (req, res) => {
   }
 };
 
-const updateUser = (req, res) => {};
+const updateUser = async (req, res) => {
+  const { username, firstName, lastName, email } = req.body;
+  try {
+    await User.findByIdAndUpdate(req.tokenId, {
+      username,
+      firstName,
+      lastName,
+      email,
+    });
+    return res.status(StatusCodes.OK).send({ status: "success" });
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ status: "error", message: error });
+  }
+};
 
 const deleteUser = (req, res) => {};
 
