@@ -106,7 +106,7 @@ const Select = ({ data, defaultValue, onChange }) => {
           role="listbox"
           ref={listRef}
           onKeyDown={handleKeyDown}
-          className="absolute min-w-max mt-1 bg-white border border-gray-300 divide-y divide-gray-100 rounded-md shadow-lg"
+          className="absolute min-w-max mt-1 bg-white border border-gray-300 divide-y divide-gray-100 rounded-md shadow-lg z-10"
         >
           {options.map((option, index) => (
             <li

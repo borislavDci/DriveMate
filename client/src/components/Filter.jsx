@@ -62,7 +62,6 @@ function Filter({
     const fetchModels = async () => {
       const data = (await api.get(`enums/model?make=${filterSpecsTrack.make}`))
         .data;
-
       const modelOptions = data.filter((option) =>
         listings.some(
           (listing) =>
@@ -80,12 +79,12 @@ function Filter({
     const years = listings
       .filter(
         (listing) =>
-          (listing.make === filterSpecsTrack.make ||
+          (listing?.make === filterSpecsTrack.make ||
             filterSpecsTrack.make === "All") &&
-          (listing.model === filterSpecsTrack.model ||
+          (listing?.model === filterSpecsTrack.model ||
             filterSpecsTrack.model === "All")
       )
-      .map((listing) => listing.year);
+      .map((listing) => listing?.year);
 
     setOptions((prev) => ({
       ...prev,
@@ -114,12 +113,12 @@ function Filter({
           <Select
             onChange={handleSelectChange}
             defaultValue="All models"
-            data={{ model: options.model }}
+            data={{ model: options?.model }}
           />
           <Select
             onChange={handleSelectChange}
             defaultValue="All years"
-            data={{ year: options.year }}
+            data={{ year: options?.year }}
           />
         </div>
 
