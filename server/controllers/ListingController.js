@@ -18,7 +18,6 @@ const getAllListings = async (req, res) => {
         });
         if (isCarAvailable) return listing;
       });
-      console.log(`i am sending an response`);
       return res.status(StatusCodes.OK).send(avaibleListings);
     } catch (error) {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
