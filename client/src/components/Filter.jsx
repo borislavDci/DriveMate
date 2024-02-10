@@ -3,6 +3,7 @@ import Select from "./Select";
 import api from "../utils/api";
 import CurrentQuery from "./CurrentQuery";
 import PropTypes from "prop-types";
+
 /**
  * Renders a filter component with selectable options for make, model, and year.
  *
@@ -33,7 +34,9 @@ function Filter({
   const handleSelectChange = (selectedOption, initiator) => {
     const filterSpecs = { ...filterSpecsTrack, [initiator]: selectedOption };
     setFilterSpecsTrack({ ...filterSpecsTrack, [initiator]: selectedOption });
-
+    if (filterSpecs.make === "All") {
+      filterSpecs.model = "All";
+    }
     const filtered = listings.filter((listing) => {
       for (let filterName in filterSpecs) {
         if (
@@ -45,6 +48,7 @@ function Filter({
       }
       return true;
     });
+
     setFilteredListings(filtered);
   };
 
@@ -59,6 +63,7 @@ function Filter({
   useEffect(() => {
     if (filterSpecsTrack.make == "All")
       return setOptions((prev) => ({ ...prev, model: [] }));
+
     const fetchModels = async () => {
       const data = (await api.get(`enums/model?make=${filterSpecsTrack.make}`))
         .data;
@@ -75,7 +80,6 @@ function Filter({
   }, [filterSpecsTrack.make, listings]);
 
   useEffect(() => {
-    console.log(filteredListings, "filteredListings");
     const years = listings
       .filter(
         (listing) =>

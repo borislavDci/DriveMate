@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import propTypes from "prop-types";
 /**
  * Select component for choosing an option from a dropdown list.
  *
@@ -63,9 +64,6 @@ const Select = ({ data, defaultValue, onChange }) => {
     if (options[0] !== defaultValue) {
       options.unshift(defaultValue);
     }
-    if (defaultValue === "All models") {
-      setSelectedOption(defaultValue);
-    }
   }, [options, defaultValue]);
 
   useEffect(() => {
@@ -126,6 +124,12 @@ const Select = ({ data, defaultValue, onChange }) => {
       )}
     </div>
   );
+};
+
+Select.propTypes = {
+  data: propTypes.object.isRequired,
+  defaultValue: propTypes.string.isRequired,
+  onChange: propTypes.func.isRequired,
 };
 
 export default Select;
