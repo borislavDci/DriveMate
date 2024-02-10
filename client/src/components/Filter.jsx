@@ -38,6 +38,7 @@ function Filter({
       filterSpecs.model = "All";
     }
     const filtered = listings.filter((listing) => {
+      if (!listing) return false;
       for (let filterName in filterSpecs) {
         if (
           filterSpecs[filterName] !== "All" &&
@@ -70,7 +71,7 @@ function Filter({
       const modelOptions = data.filter((option) =>
         listings.some(
           (listing) =>
-            listing.model === option && listing.make === filterSpecsTrack.make
+            listing?.model === option && listing?.make === filterSpecsTrack.make
         )
       );
       setOptions((prev) => ({ ...prev, model: modelOptions }));
