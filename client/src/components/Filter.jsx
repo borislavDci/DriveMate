@@ -1,8 +1,19 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Select from "./Select";
 import api from "../utils/api";
 import CurrentQuery from "./CurrentQuery";
-
+import PropTypes from "prop-types";
+/**
+ * Renders a filter component with selectable options for make, model, and year.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Array} props.listings - The list of car listings.
+ * @param {Array} props.filteredListings - The filtered list of car listings.
+ * @param {Function} props.setFilteredListings - The function to set the filtered list of car listings.
+ * @param {string} props.className - The CSS class name for styling the component.
+ * @returns {JSX.Element} The rendered filter component.
+ */
 function Filter({
   listings,
   filteredListings,
@@ -51,17 +62,18 @@ function Filter({
     const fetchModels = async () => {
       const data = (await api.get(`enums/model?make=${filterSpecsTrack.make}`))
         .data;
-      const modelOptions = data.filter((option) => {
-        return filteredListings.some(
+
+      const modelOptions = data.filter((option) =>
+        listings.some(
           (listing) =>
             listing.model === option && listing.make === filterSpecsTrack.make
-        );
-      });
+        )
+      );
       setOptions((prev) => ({ ...prev, model: modelOptions }));
     };
 
     fetchModels();
-  }, [filterSpecsTrack.make, filteredListings]);
+  }, [filterSpecsTrack.make, listings]);
 
   useEffect(() => {
     console.log(filteredListings, "filteredListings");
@@ -116,5 +128,12 @@ function Filter({
     </>
   );
 }
+
+Filter.propTypes = {
+  listings: PropTypes.array.isRequired,
+  filteredListings: PropTypes.array.isRequired,
+  setFilteredListings: PropTypes.func.isRequired,
+  className: PropTypes.string,
+};
 
 export default Filter;
