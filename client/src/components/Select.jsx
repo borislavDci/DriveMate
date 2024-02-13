@@ -11,27 +11,35 @@ import propTypes from "prop-types";
  * @returns {JSX.Element} The Select component.
  */
 
-const Select = ({ data, defaultValue, onChange }) => {
+const Select = ({ data, defaultValue, selectedOption, setSelectedOption }) => {
+  /// The isOpen state is used to determine if the dropdown list is open.
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(defaultValue);
+  /// The focusIndex state is used to determine the index of the focused option in the dropdown list.
   const [focusIndex, setFocusIndex] = useState(-1);
-
+  /// The listRef and toggleButtonRef are used to reference the dropdown list and the toggle button.
   const listRef = useRef(null);
   const toggleButtonRef = useRef(null);
 
+  /// The options and initiator are extracted from the data object.
   const options = Object?.values(data)[0];
   const initiator = Object?.keys(data)[0];
 
+  /// The handleSelect function is called when an option is selected from the dropdown list.
   const handleSelect = (option, initiator) => {
-    setSelectedOption(option);
-    setIsOpen(false);
     if (option === defaultValue) {
-      onChange(option.split(" ")[0], initiator);
+      setSelectedOption((prev) => {
+        return { ...prev, [initiator]: options[0] };
+      });
     } else {
-      onChange(option, initiator);
+      setSelectedOption((prev) => {
+        return { ...prev, [initiator]: option };
+      });
     }
+
+    setIsOpen(false);
   };
 
+  /// The handleKeyDown function is called when a key is pressed.
   const handleKeyDown = (event) => {
     switch (event.key) {
       case "ArrowDown":
@@ -60,12 +68,14 @@ const Select = ({ data, defaultValue, onChange }) => {
     }
   };
 
+  /// The useEffect hook is used to add the default value to the options array.
   useEffect(() => {
     if (options[0] !== defaultValue) {
       options.unshift(defaultValue);
     }
   }, [options, defaultValue]);
 
+  /// The useEffect hook is used to set the focus index when the dropdown list is open.
   useEffect(() => {
     if (isOpen && focusIndex === -1 && listRef.current) {
       setFocusIndex(0);
@@ -129,7 +139,8 @@ const Select = ({ data, defaultValue, onChange }) => {
 Select.propTypes = {
   data: propTypes.object.isRequired,
   defaultValue: propTypes.string.isRequired,
-  onChange: propTypes.func.isRequired,
+  selectedOption: propTypes.string,
+  setSelectedOption: propTypes.func,
 };
 
 export default Select;

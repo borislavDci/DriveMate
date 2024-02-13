@@ -4,6 +4,12 @@ import api from "../utils/api";
 import CurrentQuery from "./CurrentQuery";
 import PropTypes from "prop-types";
 
+const filterDefaultState = {
+  make: "All cars",
+  model: "All models",
+  year: "All years",
+};
+
 /**
  * Renders a filter component with selectable options for make, model, and year.
  *
@@ -26,23 +32,24 @@ function Filter({
     model: [],
     year: [],
   });
-  const [filterSpecsTrack, setFilterSpecsTrack] = useState({
-    make: "All",
-    model: "All",
-  });
+  const [selectedOption, setSelectedOption] = useState(filterDefaultState);
 
-  const handleSelectChange = (selectedOption, initiator) => {
-    const filterSpecs = { ...filterSpecsTrack, [initiator]: selectedOption };
-    setFilterSpecsTrack({ ...filterSpecsTrack, [initiator]: selectedOption });
-    if (filterSpecs.make === "All") {
-      filterSpecs.model = "All";
+  // The useEffect hook is used to update the filtered list of car listings when the selected options change.
+  useEffect(() => {
+    if (selectedOption.make.split(" ")[0] === "All") {
+      setFilteredListings(listings);
+      setSelectedOption(filterDefaultState);
+      return;
     }
+
     const filtered = listings.filter((listing) => {
       if (!listing) return false;
-      for (let filterName in filterSpecs) {
+      console.log(selectedOption);
+      for (let filterName in selectedOption) {
+        console.log(filterName);
         if (
-          filterSpecs[filterName] !== "All" &&
-          listing[filterName] !== filterSpecs[filterName]
+          selectedOption[filterName].split(" ")[0] !== "All" &&
+          listing[filterName] !== selectedOption[filterName]
         ) {
           return false;
         }
@@ -51,8 +58,9 @@ function Filter({
     });
 
     setFilteredListings(filtered);
-  };
+  }, [selectedOption]);
 
+  /// The useEffect hook is used to fetch the list of car makes from the API when the component mounts.
   useEffect(() => {
     const fetchBrands = async () => {
       const data = (await api.get("enums/make")).data;
@@ -61,35 +69,47 @@ function Filter({
     fetchBrands();
   }, []);
 
+  // The useEffect hook is used to fetch the list of car models from the API when the selected make changes.
   useEffect(() => {
-    if (filterSpecsTrack.make == "All")
+    if (selectedOption.make.split(" ")[0] == "All") {
       return setOptions((prev) => ({ ...prev, model: [] }));
-
+    }
+    if (selectedOption.model.split(" ")[0] !== "All") {
+      return setSelectedOption((prev) => ({
+        ...prev,
+        model: filterDefaultState.model,
+      }));
+    }
     const fetchModels = async () => {
-      const data = (await api.get(`enums/model?make=${filterSpecsTrack.make}`))
+      const data = (await api.get(`enums/model?make=${selectedOption.make}`))
         .data;
       const modelOptions = data.filter((option) =>
         listings.some(
           (listing) =>
-            listing?.model === option && listing?.make === filterSpecsTrack.make
+            listing?.model === option && listing?.make === selectedOption.make
         )
       );
+
       setOptions((prev) => ({ ...prev, model: modelOptions }));
     };
 
     fetchModels();
-  }, [filterSpecsTrack.make, listings]);
+  }, [selectedOption.make]);
 
+  // The useEffect hook is used to filter the list of car years when the selected make and model changes.
   useEffect(() => {
+    if (selectedOption.make.split(" ")[0] === "All")
+      return setOptions((prev) => ({ ...prev, year: [] }));
+
     const years = listings
       .filter(
         (listing) =>
-          (listing?.make === filterSpecsTrack.make ||
-            filterSpecsTrack.make === "All") &&
-          (listing?.model === filterSpecsTrack.model ||
-            filterSpecsTrack.model === "All")
+          (listing?.make === selectedOption.make ||
+            selectedOption.make.split(" ")[0] === "All") &&
+          (listing?.model === selectedOption.model ||
+            selectedOption.model.split(" ")[0] === "All")
       )
-      .map((listing) => listing?.year);
+      .map((listing) => listing?.year.toString());
 
     setOptions((prev) => ({
       ...prev,
@@ -97,12 +117,7 @@ function Filter({
         (a, b) => parseInt(a) - parseInt(b)
       ),
     }));
-  }, [
-    filteredListings,
-    filterSpecsTrack.make,
-    filterSpecsTrack.model,
-    listings,
-  ]);
+  }, [filteredListings, selectedOption.make, selectedOption.model, listings]);
 
   return (
     <>
@@ -111,19 +126,22 @@ function Filter({
       >
         <div className="flex flex-col md:flex-row gap-5">
           <Select
-            onChange={handleSelectChange}
-            defaultValue="All cars"
+            selectedOption={selectedOption.make}
+            setSelectedOption={setSelectedOption}
             data={{ make: options?.make }}
+            defaultValue={filterDefaultState.make}
           />
           <Select
-            onChange={handleSelectChange}
-            defaultValue="All models"
+            selectedOption={selectedOption.model}
+            setSelectedOption={setSelectedOption}
             data={{ model: options?.model }}
+            defaultValue={filterDefaultState.model}
           />
           <Select
-            onChange={handleSelectChange}
-            defaultValue="All years"
+            selectedOption={selectedOption.year}
+            setSelectedOption={setSelectedOption}
             data={{ year: options?.year }}
+            defaultValue={filterDefaultState.year}
           />
         </div>
 
